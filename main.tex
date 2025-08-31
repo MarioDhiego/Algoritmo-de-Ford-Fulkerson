@@ -1,0 +1,335 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% How to use writeLaTeX: 
+%
+% You edit the source code here on the left, and the preview on the
+% right shows you the result within a few seconds.
+%
+% Bookmark this page and share the URL with your co-authors. They can
+% edit at the same time!
+%
+% You can upload figures, bibliographies, custom classes and
+% styles using the files menu.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[12pt]{article}
+\usepackage{sbc-template}
+\usepackage{graphicx,url}
+\usepackage{xcolor}
+\usepackage[brazil]{babel}   
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\graphicspath{ {./} }
+\usepackage{quoting}
+\usepackage{hyphenat}
+\usepackage{hyperref}
+\usepackage{multicol}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning} % <- essencial para "right=of", "below=of"
+\usepackage[portuguese]{babel}
+\usepackage{amssymb}
+
+
+     
+\sloppy
+\title{O Problema de Fluxo Máximo em Redes: Implementação do Algoritmo de Ford-Fulkerson via Python}
+
+\author{Mário Diego Rocha Valente\inst{1}, Roberto Samarone de Araújo dos Santos\inst{2}}
+
+\address{Graduando em Sistemas de Informação - Universidade Federal do Pará(UFPA) \\
+  Rua. Augusto Corrêa 01 -- Guamá -- Belém -- PA -- Brasil
+\nextinstitute
+  Professor Dr., Faculdade de Computação - Universidade Federal do Pará(UFPA)\\
+  Av. Augusto Corrêa 01 -- Guamá -- Belém - -- PA -- Brasil \\
+  \email{mario.valente@detran.pa.gov.br, rsn@ufpa.br}}
+
+
+
+\begin{document} 
+
+\maketitle
+
+\begin{abstract}
+  This paper describes.....
+\end{abstract}
+     
+\begin{resumo} 
+  Este artigo apresenta um estudo consolidado sobre o problema de fluxo em redes, com foco no algoritmo de Ford–Fulkerson. Partimos de uma contextualização histórica e prática do tema, passando por definições formais, pelo Teorema do Fluxo Máximo–Corte Mínimo, pelos problemas clássicos modeláveis via fluxo, até a descrição detalhada do algoritmo e sua implementação passo a passo em um exemplo ilustrativo. A contribuição principal é reunir, em formato didático e alinhado a requisitos acadêmicos, os conceitos essenciais e uma execução comentada que pode servir de base para atividades práticas na disciplina de Teoria dos Grafos.
+\end{resumo}
+
+\newpage
+\section{Introdução}
+
+A teoria de grafos emergiu como uma das bases matemáticas e computacionais mais versáteis para modelagem de problemas de conectividade, transporte, comunicação e alocação de recursos. Desde o problema das pontes de Königsberg, de Euler (século XVIII), a ideia de representar entidades e relações por vértices e arestas consolidou-se e, no século XX, tornou-se ferramenta central em Pesquisa Operacional, Ciência da Computação e Engenharia.
+
+Entre os diversos problemas sobre grafos, os \emph{problemas de fluxo em redes} se destacam por capturar, de forma elegante, o escoamento de algum recurso (tráfego, mercadorias, informação, energia) de uma fonte para um sorvedouro, respeitando limitações de capacidade. Ao longo das décadas, técnicas de otimização combinatória foram desenvolvidas para resolver tais problemas de maneira eficiente e com garantias formais, impactando desde logística e telecomunicações até visão computacional e análise de dados.
+
+Historicamente, o algoritmo de Ford–Fulkerson consolidou o paradigma de procurar \emph{caminhos aumentantes} no \emph{grafo residual} para iterativamente ampliar o valor do fluxo. Sua formulação clássica remonta à década de 1950 e está intimamente associada ao \emph{Teorema do Fluxo Máximo–Corte Mínimo}, que estabelece uma equivalência fundamental entre o valor do fluxo máximo e a capacidade do corte mínimo separando fonte e sorvedouro.
+
+No contexto contemporâneo, a família de métodos inspirados em Ford–Fulkerson inclui variações como Edmonds–Karp (que usa BFS para obter limites polinomiais de complexidade) e algoritmos emparelhados a estruturas de dados eficientes. Aplicações típicas abrangem: dimensionamento de redes de transporte, \emph{routing} na Internet, casamento bipartido máximo, design de cadeias de produção, planejamento de evacuação, segmentação de imagens e problemas de conectividade com restrições.
+
+
+\section{Trabalhos Correlatos} \label{sec:firstpage}
+
+Diversos algoritmos relevantes podem ser destacados da literatura sobre o algoritmo de aumento de fluxo em redes. A partir de Ford e Fulkerson (1958), outros trabalhos como o de Wilkinson (1969), Minieka (1973 e 1974) e Halpern (1979) foram publicados adaptando o procedimento para tratar características específicas.\vskip0.3cm
+
+Gale (1959) sugeriu um aperfeiçoamento que permitisse a obtenção do que chamou fluxo máximo universal, isto é, um fluxo tal que para todo tempo t < T a quantidade já enviada seja máxima. Wilkinson e Minieka (1973) implementaram essa modificação em seus algoritmos
+
+
+
+
+
+
+
+\section{Redes de Fluxo e Problema de Fluxo Máximo} 
+
+Uma \emph{rede de fluxo} é um grafo dirigido $G=(V,E)$ munido de uma função \emph{capacidade} $c: E \to \mathbb{R}{\ge 0}$, um vértice \emph{fonte} $s\in V$ e um vértice \emph{sumidouro} $t\in V$, $s\neq t$. 
+
+Um \emph{fluxo} é uma função $f: V\times V \to \mathbb{R}$ que satisfaz, para toda aresta $(u,v)\in E$: 
+
+\begin{enumerate}
+    \item \textbf{Capacidade:} $0 \le f(u,v) \le c(u,v)$; e $f(u,v)=0$ se $(u,v)\notin E$. 
+    \item \textbf{Conservação:} para todo $v\in V\setminus{s,t}$, ; $\sum\limits{u\in V} f(u,v) = \sum\limits_{w\in V} f(v,w)$. 
+\end{enumerate} 
+    
+O \emph{valor do fluxo} é $|f| = \sum\limits_{v\in V} f(s,v) - \sum\limits_{u\in V} f(u,s)$, isto é, o total que sai de $s$ (equivalentemente, que entra em $t$). O \textbf{problema do fluxo máximo} consiste em determinar um fluxo $f$ de valor máximo.
+
+\subsection{Cortes e capacidade de corte} 
+
+Um \emph{corte} $(S,\bar S)$ em $G$ é uma partição de $V$ tal que $s\in S$ e $t\in \bar S$. 
+
+A \emph{capacidade do corte} é
+
+$$ c(S,\bar{S}) = \sum_{u \in S} \sum_{u \in \bar{S}}$$
+
+
+Para qualquer fluxo viável $f$, vale $|f| \le c(S,\bar S)$ para todo corte $(S,\bar S)$.
+
+\subsection{Teorema do Fluxo Máximo–Corte Mínimo} 
+
+\begin{theorem}
+[Fluxo Máximo–Corte Mínimo] Em uma rede de fluxo, o valor do fluxo máximo é igual à capacidade do corte mínimo que separa $s$ de $t$. 
+\end{theorem} 
+
+Intuitivamente, todo fluxo precisa ``atravessar'' algum conjunto de arestas que formam um gargalo entre $s$ e $t$. Se um algoritmo encontra um fluxo que satura algum corte, não há como aumentar o valor do fluxo sem aumentar a capacidade destas arestas de fronteira — logo, esse fluxo é ótimo.
+
+
+\subsection{Grafo residual} 
+
+Dado um fluxo $f$, o \emph{grafo residual} $G_f=(V,E_f)$ contém, para cada aresta $(u,v)\in E$, uma aresta \emph{adiante} com capacidade residual $c_f(u,v)=c(u,v)-f(u,v)$; se $f(u,v)>0$, contém também uma aresta \emph{de retorno} $(v,u)$ com capacidade residual $c_f(v,u)=f(u,v)$.
+
+Um \emph{caminho aumentante} é um caminho de $s$ a $t$ em $G_f$ com todas as capacidades residuais positivas. O algoritmo de Ford–Fulkerson baseia-se em encontrar sucessivamente tais caminhos e \emph{empurrar} fluxo pelo menor residual do caminho.
+
+\subsection{Algoritmo de Ford–Fulkerson (pseudocódigo)} 
+
+A seguir apresentamos um pseudocódigo em estilo compatível com a literatura clássica (CLRS), porém redigido neste trabalho.\footnote{Cormen et al., (2009).} A estratégia geral é iterar enquanto existir caminho aumentante entre $s$ e $t$ no grafo residua
+
+\begin{algorithm}[H] 
+\caption{Ford–Fulkerson($G=(V,E), c, s, t$)} \label{alg:ff}
+\begin{algorithmic}[1] 
+\State $f(u,v) \gets 0$ para toda aresta $(u,v)\in E$ \Repeat 
+\State Construir o grafo residual $G_f$ a partir de $f$ 
+\State Encontrar um caminho aumentante $P$ de $s$ a $t$ em $G_f$ (por exemplo, DFS ou BFS) \If{$P$ não existe} 
+\State \textbf{break} \EndIf 
+\State $\Delta \gets \min{ c_f(u,v) : (u,v)\in P }$ \Comment{Capacidade residual mínima ao longo de $P$} \For{cada aresta $(u,v)$ em $P$} 
+\State $f(u,v) \gets f(u,v) + \Delta$ \Comment{Aumenta fluxo na direção direta} 
+\State $f(v,u) \gets f(v,u) - \Delta$ \Comment{Equivale a permitir ``desfazer'' na reversa} \EndFor \Until{\textbf{falso}} 
+\State \Return $f$ 
+\end{algorithmic}
+\end{algorithm}
+
+\noindent Se a busca por caminhos aumentantes for feita por BFS (sempre escolhendo o caminho mais curto em número de arestas), obtém-se a variante \emph{Edmonds–Karp}, cuja complexidade é $\mathcal{O}(|V|,|E|^2)$. Com uma estratégia arbitrária (DFS), o número de iterações pode depender do valor do fluxo máximo quando as capacidades são inteiras.
+
+
+\subsection{Problemas clássicos Modeláveis como Fluxo} 
+
+Além do próprio fluxo máximo e do corte mínimo, formulam-se como problemas de fluxo: 
+
+\begin{itemize} 
+\item \textbf{Casamento bipartido máximo:} construir rede $s\to$ lado esquerdo, arestas de capacidade 1 entre as partições, e lado direito $\to t$. 
+\item \textbf{Atribuição (assignment) e escalonamento:} variantes com restrições de capacidade e custos (em min-cost flow). 
+\item \textbf{Circulação com demandas:} generaliza fluxo, permitindo balanços em vértices e cotas em arestas; resolve cadeias de suprimento. 
+\item \textbf{Cortes mínimos e \emph{s-t} cut:} computáveis a partir do grafo residual final; aplicam-se a segmentação de imagens e vis~ao computacional. 
+\item \textbf{Caminhos disjuntos e conectividade:} via reduções que impõem capacidades unitárias. \end{itemize}
+
+\section{Vantagens e Desvantagens} \label{sec:vantagens}
+
+O algoritmo de Ford–Fulkerson apresenta um papel fundamental na resolução de problemas de fluxo em redes, com aplicações que vão desde sistemas de transporte até otimização industrial. No entanto, como todo método computacional, ele possui vantagens e limitações que precisam ser consideradas de acordo com o contexto de uso.
+
+\subsection{Vantagens}
+
+Uma das principais vantagens do algoritmo é a sua \textbf{simplicidade conceitual}. A ideia de encontrar caminhos aumentantes sucessivos até que não seja mais possível ampliar o fluxo torna o método intuitivo e relativamente fácil de implementar, tanto em termos matemáticos quanto computacionais.
+
+Outro ponto positivo é a \textbf{versatilidade}. O Ford–Fulkerson pode ser aplicado em diversos cenários reais, como:
+
+
+\begin{itemize} 
+    \item \textbf{Fluxo de trânsito}: ao modelar ruas e avenidas como arestas com capacidades limitadas (representando o número de veículos que podem passar por unidade de tempo), é possível identificar gargalos no tráfego e otimizar a circulação de veículos em grandes centros urbanos.      
+    \item \textbf{Indústria metalúrgica}: no problema do corte de chapas metálicas, o algoritmo auxilia na determinação de rotas ótimas de produção, maximizando o uso do material e minimizando desperdícios. 
+    \item \textbf{Fluxo em tubulações}: redes de abastecimento de água, petróleo ou gás podem ser modeladas como grafos, onde as capacidades representam o volume máximo de fluido. O algoritmo auxilia na previsão de gargalos e no planejamento de expansões da rede. 
+\end{itemize}
+
+Além disso, uma vantagem teórica é a \textbf{garantia de encontrar a solução ótima}, desde que as capacidades sejam inteiras, o que é extremamente útil em problemas práticos que envolvem unidades discretas de recursos.
+
+
+\subsection{Desvantagens}
+
+Entre as desvantagens, destaca-se a \textbf{dependência da escolha dos caminhos aumentantes}. O tempo de execução do algoritmo pode variar significativamente conforme a ordem em que os caminhos são encontrados. Em certos casos, essa dependência pode levar a tempos de execução muito longos, especialmente quando as capacidades não são inteiras.
+
+Outra limitação é a \textbf{eficiência computacional}. Embora seja eficiente para grafos de tamanho moderado, em aplicações de grande escala — como redes de telecomunicações globais ou sistemas logísticos complexos — o Ford–Fulkerson pode não ser a escolha mais adequada, sendo preferível o uso de algoritmos mais eficientes como Edmonds–Karp ou Push–Relabel.
+
+Por fim, uma desvantagem prática é que o algoritmo \textbf{não lida diretamente com restrições adicionais}, como custos associados ao fluxo. Em aplicações reais, como logística de transporte ou redes de energia, além do fluxo máximo, é necessário considerar custos e eficiência, o que exige adaptações ou o uso de variantes do algoritmo.
+
+
+\section{Variações do Algoritmo} \label{sec:variacoes}
+
+O algoritmo de Ford–Fulkerson serviu de base para o desenvolvimento de diversas variações e aprimoramentos ao longo das décadas. Essas versões surgiram para superar limitações práticas, como a complexidade no pior caso ou a escolha de caminhos aumentantes ineficientes. A seguir, apresentamos as principais variações, destacando autores, ideias centrais, fórmulas e pseudocódigos simplificados.\n\n
+
+\subsection{Algoritmo de Edmonds–Karp (1972)}
+
+Proposto por Jack Edmonds e Richard Karp em 1972, essa variação define que os caminhos aumentantes devem ser escolhidos por meio de uma busca em largura (BFS). Dessa forma, sempre se encontra o caminho aumentante mais curto (em número de arestas), o que garante tempo polinomial.- Complexidade: $O(V \cdot E^2)$. Ideia principal: usar BFS para evitar ciclos infinitos e garantir convergência mais rápida.
+
+Pseudocódigo Simplificado: EdmondsKarp(G, s, t):  Inicialize f(u,v) = 0 para todo (u,v) em E Enquanto existir caminho aumentante P em BFS(s,t): c = min{ capacidade residual(u,v) ao longo de P } Para cada aresta (u,v) em P: f(u,v) = f(u,v) + c  f(v,u) = f(v,u) - c Retorne fluxo máximo f
+
+\subsection{Algoritmo de Dinic (1970)}
+
+Introduzido por Yefim Dinitz em 1970, melhora o desempenho construindo níveis de camadas por meio de BFS e encontrando múltiplos caminhos aumentantes de uma só vez dentro desse grafo em camadas. Complexidade: $O(V^2 \cdot E)$ no caso geral; otimizado para $O(\min(V^{2/3}, E^{1/2}) \cdot E)$ em grafos unitários. - Ideia principal: uso de um grafo de nível e fluxo bloqueador. Fórmula Central: O fluxo bloqueador é definido como aquele no qual não existe mais caminho aumentante dentro do grafo em camadas.
+
+\subsection{Algoritmo de Push–Relabel (Goldberg–Tarjan, 1986)}
+
+Criado por Andrew V. Goldberg e Robert Tarjan em 1986, utiliza uma técnica diferente dos caminhos aumentantes. Em vez de buscar caminhos completos, o algoritmo mantém pré-fluxos (fluxos temporários que violam a conservação) e ajusta esses fluxos por operações de push e relabel. Complexidade: $O(V^3)$ no caso geral; otimizações reduzem para $O(V^2\sqrt{E})$. Ideia principal: redistribuir fluxo localmente sem depender de caminhos aumentantes globais. Pseudocódigo Simplificado: PushRelabel(G, s, t): Inicialize pré-fluxos com excesso em s  Inicialize altura(s) = |V| Enquanto houver vértice u com excesso > 0 e u ≠ {s,t}: Se existir aresta admissível (u,v): PUSH(u,v) Senão: RELABEL(u) Retorne fluxo máximo f.
+
+\subsection{Outras Variações Relevantes}
+
+Capacity Scaling (Ahuja e Orlin, 1992): otimiza Ford–Fulkerson ao trabalhar apenas com caminhos aumentantes que tenham capacidade acima de um limite, reduzindo buscas inúteis. Algoritmos Paralelos e Distribuídos: surgiram para aplicações em redes de computadores e processamento paralelo de grafos massivos. Essas variações consolidaram o Ford–Fulkerson como um dos pilares da teoria dos fluxos em redes, permitindo aplicações práticas em problemas de logística, telecomunicações, engenharia e ciência da computação."
+
+
+\newpage
+\section{Resultados}
+\subsection{Estudo de Caso} \label{sec:implementacao} 
+
+Nesta seção, ilustramos o funcionamento do Ford–Fulkerson em uma rede clássica. Usaremos os vértices ${S, A, B, C, D, E, F, G, H, I, J, K, L , M, T}$ e as capacidades mostradas na Figura,\ref{fig:grafo}. O objetivo é determinar o fluxo máximo de $S$ para $T$.
+
+
+
+
+\begin{document}
+\begin{tikzpicture}[>=Stealth, font=\small]
+  % estilo dos nós
+  \tikzset{v/.style={circle, draw, minimum size=8mm, inner sep=1pt, align=center}}
+
+  % --- Coordenadas fixas ajustadas ---
+  \node[v] (S) at (0,0) {S};
+
+  % Linha superior
+  \node[v] (A) at (2,2.2)  {A};
+  \node[v] (C) at (4,2.2)  {C};
+  \node[v] (F) at (6,2.2)  {F};
+  \node[v] (J) at (8,2.2)  {J};
+  \node[v] (L) at (10,2.2) {L};
+
+  % Linha central
+  \node[v] (E) at (2,0.2)  {E};
+  \node[v] (G) at (6,0.2)  {G};
+  \node[v] (H) at (8,-0.2)  {H};
+
+  % Linha inferior
+  \node[v] (B) at (2,-2.2) {B};
+  \node[v] (D) at (4,-2.2) {D};
+  \node[v] (I) at (6,-2.2) {I};
+  \node[v] (K) at (8,-2.2) {K};
+  \node[v] (M) at (10,-2.2){M};
+
+  % Nó destino
+  \node[v, fill=red!12] (T) at (12,0) {T};
+
+  % --- Arestas ajustadas ---
+  \draw[->] (S) -- node[above] {30} (A);
+  \draw[->] (S) -- node[below] {50} (B);
+  \draw[->] (A) -- node[above] {40} (C);
+  \draw[->, bend left=25] (E) to node[above left] {10} (S); 
+  \draw[->] (E) -- node[left] {10} (A);
+  \draw[->] (E) -- node[below] {10} (D);
+
+  \draw[->] (B) -- node[below] {40} (D);
+  \draw[->] (D) -- node[below] {30} (I);
+
+  \draw[->, bend left=15] (C) -- node[above] {5}  (I);
+  \draw[->] (C) -- node[above] {10} (F);
+  
+\draw[->, bend left=35] (C) -- node[above right] {5} (H);
+
+  \draw[->, bend right=10] (F) -- node[above] {5} (G);
+  \draw[->] (F) -- node[above] {10} (J);
+
+  \draw[->] (G) -- node[above] {10} (H);
+  \draw[->, bend left=15] (G) -- node[above] {20} (L);
+
+  \draw[->, bend left=10] (I) -- node[below right] {10} (H);
+  \draw[->] (I) -- node[below] {20} (K);
+
+  \draw[->] (H) -- node[above] {40} (K);
+  \draw[->] (K) -- node[above] {70} (M);
+
+  \draw[->] (J) -- node[above] {20} (L);
+  \draw[->] (L) -- node[above] {40} (T);
+  \draw[->, bend right=15] (L) -- node[below right] {30} (H);
+
+  \draw[->, bend left=10] (H) -- node[above right] {20} (T);
+  \draw[->] (M) -- node[above] {80} (T);
+\end{tikzpicture}
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%\section{Algoritmo de Ford-Fulkerson}\label{sec:figs}
+
+%O algoritmo Ford-Fulkerson foi projetado para resolver o problema de fluxo máximo em uma rede de fluxo. O conceito central por trás do algoritmo é encontrar caminhos através da rede, chamados caminhos de aumento, por onde o fluxo adicional pode ser empurrado da fonte para o coletor. 
+
+%O algoritmo aumenta o fluxo ao longo desses caminhos o máximo possível e continua a encontrar e usar esses caminhos de aumento até que não seja possível encontrar mais nenhum. Nesse ponto, o fluxo é maximizado e o algoritmo termina.
+
+%Em termos mais simples, o algoritmo Ford-Fulkerson procura repetidamente maneiras de enviar mais fluxo pela rede e continua fazendo isso até que não seja mais possível enviar mais fluxo sem violar as restrições de capacidade.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Referências Bibliográficas}
+
+
+
+\bibliographystyle{sbc}
+\bibliography{sbc-template}
+
+\end{document}
