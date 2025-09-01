@@ -89,6 +89,8 @@ Em 1986, \textbf{Goldberg e Tarjan} propuseram o método \textit{Push-Relabel} \
 \newpage
 \section{Redes de Fluxo  (ou Rede Capacitada)} 
 
+As redes de fluxo constituem um modelo matemático fundamental em teoria dos grafos, aplicado na resolução de problemas de transporte, logística e comunicação \cite{ahuja1993,cormen2009}.
+
 Uma rede de fluxo é um grafo direcionado, $G = (V, E)$, onde:
 
 \begin{itemize}
@@ -102,38 +104,46 @@ Uma rede de fluxo é um grafo direcionado, $G = (V, E)$, onde:
 
 \subsection{Fluxo} 
 
-Um fluxo em uma rede de fluxo $G$ é uma função $f: V \times V \rightarrow \mathbb{R}$ (que associa um número real a cada par de vértices) que satisfaz as seguintes propriedades:
+Um fluxo em uma rede de fluxo $G$ é uma função $f: V \times V \rightarrow \mathbb{R}$ (que associa um número real a cada par de vértices) que satisfaz as seguintes propriedades \cite{ahuja1993},:
 
 \begin{itemize}
     \item \textbf{Restrição de Capacidade}: Para cada par de vértices $(u, v) \in V \times V$, o fluxo $f(u, v)$ deve ser não negativo e não pode exceder a capacidade da aresta: $0 \le f(u, v) \le c(u, v)$ Se não houver aresta $(u, v)$ no grafo original, então $f(u, v) = 0$;
     \item Conservação do Fluxo: Para cada vértice $u \in V$, exceto a fonte $s$ e o sumidouro $t$, o fluxo total que entra em $u$ deve ser igual ao fluxo total que sai de $u$: $\sum_{v \in V} f(v, u) = \sum_{v \in V} f(u, v)$ para todo $u \in V \setminus {s, t}$ Isso significa que não há acúmulo nem perda de material nos vértices intermediários;
     \item \textbf{Valor do Fluxo}: O valor de um fluxo $f$, denotado por $|f|$, é o fluxo líquido total que sai da fonte $s$: $|f| = \sum_{v \in V} f(s, v) - \sum_{v \in V} f(v, s)$ Normalmente, em uma rede de fluxo, não há arestas de entrada na fonte, então o segundo termo é zero. O objetivo do problema de fluxo máximo é encontrar um fluxo $f$ tal que seu valor $|f|$ seja o maior possível;
-    \item 
+    \item \textbf{Redes com Múltiplas Fontes e Sumidouros}: O problema de fluxo máximo pode ser estendido para redes com múltiplas fontes e múltiplos sumidouros \cite{goldberg1988,ahuja1993}.Para resolver esses casos, a rede original pode ser transformada em uma rede equivalente com uma única fonte e um único sumidouro:
+    \begin{itemize}
+        \item Superfonte (s’): É adicionada uma nova superfonte $s'$ e arestas direcionadas de $s'$ para cada fonte original $s_i$ com capacidade infinita $c(s', s_i) = \infty$;
+        \item Supersumidouro (t’): É adicionado um novo supersumidouro $t'$ e arestas direcionadas de cada sumidouro original $t_j$ para $t'$ com capacidade infinita $c(t_j, t') = \infty$. Qualquer fluxo na rede original corresponde a um fluxo na rede transformada, e vice-versa.
+    \end{itemize}
+    \item \textbf{ Capacidades em Vértices}: Em algumas redes, os vértices também podem ter capacidades que limitam a quantidade de fluxo que pode passar por eles. Esse problema também pode ser transformado em uma rede equivalente onde todas as capacidades estão nas arestas. Isso é feito dividindo cada vértice $v$ com capacidade $l(v)$ em dois vértices, $v_{in}$ e $v_{out}$, conectados por uma aresta $(v_{in}, v_{out})$ com capacidade $c(v_{in}, v_{out}) = l(v)$. Todas as arestas de entrada para $v$ agora vão para $v_{in}$, e todas as arestas de saída de $v$ agora saem de $v_{out}$.
 \end{itemize}
-1. 
-2. 
+ 
+\noindent O problema de fluxo máximo, portanto, busca o valor máximo de fluxo possível, respeitando todas as capacidades das arestas e as leis de conservação de fluxo, tornando-o uma ferramenta fundamental para otimizar a passagem de recursos através de qualquer sistema que possa ser modelado como uma rede.
 
-3.3. 
+\section{Teorema do Fluxo Máximo/Corte Mínimo}
 
-3.4. Redes com Múltiplas Fontes e Sumidouros O problema de fluxo máximo pode ser estendido para redes com múltiplas fontes e múltiplos sumidouros. Para resolver esses casos, a rede original pode ser transformada em uma rede equivalente com uma única fonte e um único sumidouro:
+Um dos resultados mais importantes da teoria de redes de fluxo é o Teorema do Fluxo Máximo, formulado por Ford e Fulkerson \cite{ford1956maximal}.
 
-• Superfonte (s’): É adicionada uma nova superfonte $s'$ e arestas direcionadas de $s'$ para cada fonte original $s_i$ com capacidade infinita $c(s', s_i) = \infty$.
-• Supersumidouro (t’): É adicionado um novo supersumidouro $t'$ e arestas direcionadas de cada sumidouro original $t_j$ para $t'$ com capacidade infinita $c(t_j, t') = \infty$. Qualquer fluxo na rede original corresponde a um fluxo na rede transformada, e vice-versa.
+\noindent Para entender este teorema, precisamos primeiro definir o conceito de um corte em uma rede de fluxo. Um corte (S, T) em uma rede de fluxo $G=(V, E)$ com fonte $s$ e sumidouro $t$ é uma partição do conjunto de vértices $V$ em dois subconjuntos $S$ e $T = V \setminus S$, tal que a fonte $s \in S$ e o sumidouro $t \in T$.
 
-3.5. Capacidades em Vértices Em algumas redes, os vértices também podem ter capacidades que limitam a quantidade de fluxo que pode passar por eles. Esse problema também pode ser transformado em uma rede equivalente onde todas as capacidades estão nas arestas. Isso é feito dividindo cada vértice $v$ com capacidade $l(v)$ em dois vértices, $v_{in}$ e $v_{out}$, conectados por uma aresta $(v_{in}, v_{out})$ com capacidade $c(v_{in}, v_{out}) = l(v)$. Todas as arestas de entrada para $v$ agora vão para $v_{in}$, e todas as arestas de saída de $v$ agora saem de $v_{out}$.
-O problema de fluxo máximo, portanto, busca o valor máximo de fluxo possível, respeitando todas as capacidades das arestas e as leis de conservação de fluxo, tornando-o uma ferramenta fundamental para otimizar a passagem de recursos através de qualquer sistema que possa ser modelado como uma rede.
+A capacidade de um corte $c(S, T)$ é a soma das capacidades de todas as arestas que vão de um vértice em $S$ para um vértice em $T$: $c(S, T) = \sum_{(u,v) \in E \text{ com } u \in S, v \in T} c(u, v)$ Note que arestas de $T$ para $S$ não contribuem para a capacidade do corte neste sentido, pois o fluxo é unidirecional de $S$ para $T$.
 
+\noindent O Teorema do Fluxo Máximo/Corte Mínimo \cite{cormen2009}, estabelece que o valor do fluxo máximo em uma rede é igual à capacidade de um corte mínimo na mesma rede. Um corte mínimo é um corte cuja capacidade é a menor entre todos os cortes possíveis na rede.
 
-
-
+\noindent Este teorema é central porque fornece uma condição de otimalidade para o fluxo encontrado. Seja $f$ um fluxo em uma rede $G$ com fonte $s$ e sumidouro $t$. As seguintes condições são equivalentes:
 
 
+\begin{enumerate}
+    \item $f$ é um fluxo máximo em $G$.
+    \item  A rede residual $G_f$ não contém nenhum caminho aumentante.
+    \item $|f| = c(S, T)$ para algum corte $(S, T)$ de $G$.
+\end{enumerate}
 
+\noindent A equivalência dessas condições é crucial: se um algoritmo encontra um fluxo $f$ e não consegue mais encontrar caminhos aumentantes na rede residual $G_f$, então ele encontrou um fluxo máximo. Além disso, a capacidade desse fluxo máximo será exatamente igual à capacidade do corte mínimo da rede, que é o "gargalo" ou a "vulnerabilidade" da rede que limita o fluxo total. 
 
+\noindent A prova formal deste teorema é um processo de indução que demonstra que, para qualquer fluxo, o valor do fluxo é sempre menor ou igual à capacidade de qualquer corte, e que para o fluxo máximo existe um corte cuja capacidade é exatamente igual ao valor do fluxo.
 
-
-
-
+\newpage
 \subsection{Algoritmo de Ford–Fulkerson (pseudocódigo)} 
 
 A seguir apresentamos um pseudocódigo em estilo compatível com a literatura clássica (CLRS), porém redigido neste trabalho.\footnote{Cormen et al., (2009).} A estratégia geral é iterar enquanto existir caminho aumentante entre $s$ e $t$ no grafo residua
@@ -309,6 +319,23 @@ Nesta seção, ilustramos o funcionamento do Ford–Fulkerson em uma rede cláss
 \end{tikzpicture}
 
 
+
+
+
+
+\newpage
+\section{Considerações Finais}
+
+O problema de fluxo máximo em redes, juntamente com o método de Ford-Fulkerson, representa uma área de estudo fundamental e de imensa relevância prática na otimização combinatória e na ciência da computação. Como demonstrado ao longo deste artigo, a capacidade de modelar sistemas complexos de transporte, distribuição e comunicação como redes de fluxo permite resolver uma variedade impressionante de problemas do mundo real.
+
+\noindent A metodologia de Ford-Fulkerson, embora concebida há décadas por L.R. Ford Jr. e D.R. Fulkerson, continua sendo a base para a compreensão e o desenvolvimento de algoritmos mais avançados. Seus conceitos centrais de redes residuais, caminhos aumentantes e cortes são indispensáveis para analisar a dinâmica de fluxo e identificar os gargalos (cortes mínimos) que limitam a capacidade de uma rede. 
+
+\noindent A versão Edmonds-Karp, que emprega a busca em largura para encontrar caminhos aumentantes, garante um tempo de execução polinomial, tornando-o uma escolha robusta para muitas aplicações.
+No entanto, é crucial reconhecer tanto as vantagens, como a versatilidade e a capacidade de fornecer soluções exatas e identificar vulnerabilidades, quanto as desvantagens, como a potencial ineficiência em sua forma genérica e a sensibilidade a capacidades irracionais. A contínua pesquisa na área, exemplificada pelos algoritmos push-relabel e pelas contribuições de autores como Goldberg e Tarjan, reflete a busca por soluções ainda mais rápidas e eficientes para lidar com redes de grande escala e complexidade.
+
+\noindent A implementação conceitual em Python ilustra como a teoria abstrata pode ser traduzida em código, fornecendo uma ferramenta prática para a análise de redes. A clareza e a flexibilidade do Python facilitam a construção e manipulação das estruturas de dados necessárias, tornando o algoritmo acessível para experimentação e aplicação em diversos contextos.
+
+\noindent Em suma, o problema de fluxo máximo e o algoritmo de Ford-Fulkerson são mais do que apenas um exercício acadêmico; são ferramentas poderosas que capacitam engenheiros, cientistas de dados e pesquisadores a otimizar sistemas, alocar recursos de forma inteligente e tomar decisões estratégicas, contribuindo significativamente para a eficiência e resiliência de infraestruturas modernas. A compreensão de seus princípios e a capacidade de aplicá-los continuam sendo habilidades valiosas no cenário tecnológico atual.
 
 
 
