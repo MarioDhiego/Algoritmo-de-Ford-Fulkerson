@@ -1,0 +1,38 @@
+\section{Redes de Fluxo e Problema de Fluxo Máximo} 
+
+\noindent Uma \emph{rede de fluxo} é um grafo dirigido $G=(V,E)$ munido de uma função \emph{capacidade} $c: E \to \mathbb{R}{\ge 0}$, um vértice \emph{fonte} $s\in V$ e um vértice \emph{sumidouro} $t\in V$, $s\neq t$. 
+
+\noindent Um \emph{fluxo} é uma função $f: V\times V \to \mathbb{R}$ que satisfaz, para toda aresta $(u,v)\in E$: 
+
+\begin{enumerate}
+    \item \textbf{Capacidade:} $0 \le f(u,v) \le c(u,v)$; e $f(u,v)=0$ se $(u,v)\notin E$. 
+    \item \textbf{Conservação:} para todo $v\in V\setminus{s,t}$, ; $\sum\limits{u\in V} f(u,v) = \sum\limits_{w\in V} f(v,w)$. 
+\end{enumerate} 
+    
+O \emph{valor do fluxo} é $|f| = \sum\limits_{v\in V} f(s,v) - \sum\limits_{u\in V} f(u,s)$, isto é, o total que sai de $s$ (equivalentemente, que entra em $t$). O \textbf{problema do fluxo máximo} consiste em determinar um fluxo $f$ de valor máximo.
+
+\subsection{Cortes e capacidade de corte} 
+
+Um \emph{corte} $(S,\bar S)$ em $G$ é uma partição de $V$ tal que $s\in S$ e $t\in \bar S$. 
+
+A \emph{capacidade do corte} é
+
+$$ c(S,\bar{S}) = \sum_{u \in S} \sum_{v \in \bar{S}} c(u,v) $$
+
+
+Para qualquer fluxo viável $f$, vale $|f| \le c(S,\bar S)$ para todo corte $(S,\bar S)$.
+
+\subsection{Teorema do Fluxo Máximo–Corte Mínimo} 
+
+\begin{theorem}
+[Fluxo Máximo–Corte Mínimo] Em uma rede de fluxo, o valor do fluxo máximo é igual à capacidade do corte mínimo que separa $s$ de $t$. 
+\end{theorem} 
+
+\noindent Intuitivamente, todo fluxo precisa ``atravessar'' algum conjunto de arestas que formam um gargalo entre $s$ e $t$. Se um algoritmo encontra um fluxo que satura algum corte, não há como aumentar o valor do fluxo sem aumentar a capacidade destas arestas de fronteira — logo, esse fluxo é ótimo.
+
+
+\subsection{Grafo residual} 
+
+Dado um fluxo $f$, o \emph{grafo residual} $G_f=(V,E_f)$ contém, para cada aresta $(u,v)\in E$, uma aresta \emph{adiante} com capacidade residual $c_f(u,v)=c(u,v)-f(u,v)$; se $f(u,v)>0$, contém também uma aresta \emph{de retorno} $(v,u)$ com capacidade residual $c_f(v,u)=f(u,v)$.
+
+Um \emph{caminho aumentante} é um caminho de $s$ a $t$ em $G_f$ com todas as capacidades residuais positivas. O algoritmo de Ford–Fulkerson baseia-se em encontrar sucessivamente tais caminhos e \emph{empurrar} fluxo pelo menor residual do caminho.
