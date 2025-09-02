@@ -1,4 +1,3 @@
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % UNIVERSIDADE FEDERAL DO PARÁ
 % INSTITUTO DE CIÊNCIAS EXATAS E NATURAIS
@@ -23,33 +22,33 @@
 \usepackage{amssymb}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-
+\usepackage{listings}
 
 \sloppy
-\title{O Problema de Fluxo Máximo em Redes: Implementação do Algoritmo de Ford-Fulkerson via Python}
+\title{O Problema de Fluxo Máximo em Redes: Implementação do Algoritmo de Ford-Fulkerson em Python}
 
-\author{Mário Diego Rocha Valente\inst{1}, Fabrício dos Santos Assunção\inst{1},Roberto Samarone dos Santos\inst{2}}
+\author{Mário Diego Rocha Valente\inst{1}, Fabrício Santos Assunção\inst{1},Roberto Samarone dos Santos\inst{2}}
 
 \address{Graduando em Sistemas de Informação - Universidade Federal do Pará(UFPA) \\
-  Rua. Augusto Corrêa 01 -- Guamá -- Belém -- PA -- Brasil
+  Rua Augusto Corrêa, 01 - Guamá - Belém - PA - Brasil
 \nextinstitute
   Professor Dr., Faculdade de Computação - Universidade Federal do Pará(UFPA)\\
-  Av. Augusto Corrêa 01 -- Guamá -- Belém - -- PA -- Brasil \\
+  Rua Augusto Corrêa, 01 - Guamá - Belém - PA - Brasil \\
   \email{diego.vatente@gmail.com, fabricioassuncao71@gmail.com, rsa@ufpa.br}
   }
 
-
-
 \begin{document} 
-
 \maketitle
 
 \begin{abstract}
-  This paper describes.....
+  This paper presents a comprehensive study of the maximum flow problem in networks, with a focus on the Ford–Fulkerson algorithm. It covers historical background, formal definitions, the Max-Flow/Min-Cut theorem, classical problems modeled as flows, and practical applications. The work provides a detailed description of the algorithm, its variations, and a step-by-step Python implementation illustrated with a sample network. The main contribution is a didactic presentation that integrates theory and practice, serving as a guide for understanding and applying network flow optimization techniques in computer science, engineering, and operational research contexts.\vskip0.3cm
+  \textbf{Keywords}: Ford–Fulkerson algorithm, maximum flow, network optimization, augmenting paths, bottleneck.
 \end{abstract}
      
 \begin{resumo} 
-  Este artigo apresenta um estudo consolidado sobre o problema de fluxo em redes, com foco no algoritmo de Ford–Fulkerson. Partimos de uma contextualização histórica e prática do tema, passando por definições formais, pelo Teorema do Fluxo Máximo–Corte Mínimo, pelos problemas clássicos modeláveis via fluxo, até a descrição detalhada do algoritmo e sua implementação passo a passo em um exemplo ilustrativo. A contribuição principal é reunir, em formato didático e alinhado a requisitos acadêmicos, os conceitos essenciais e uma execução comentada que pode servir de base para atividades práticas na disciplina de Teoria dos Grafos.
+Este artigo apresenta um estudo detalhado sobre o problema de fluxo máximo em redes, enfatizando o algoritmo de Ford–Fulkerson. São abordados aspectos históricos, definições formais, o Teorema do Fluxo Máximo/Corte Mínimo, problemas clássicos modeláveis por fluxo e suas aplicações práticas. Inclui-se uma implementação passo a passo em Python, ilustrada com uma rede exemplo. Na primeira iteração, o caminho aumentante 
+$S→A→C→F→J→L→T$ apresentou capacidade mínima de 5, elevando o fluxo acumulado para 5 unidades. Após todas as iterações, o algoritmo atinge o fluxo máximo ótimo $∣f∣=45$, conforme previsto pelo Teorema do Fluxo Máximo/Corte Mínimo. A principal contribuição consiste em integrar teoria e prática de forma didática, fornecendo uma referência útil para o ensino e aplicação de técnicas de otimização de fluxo em ciência da computação, engenharia e pesquisa operacional.. \vskip0.3cm
+ \textbf{Palavras-chave}: Algoritmo Ford–Fulkerson, fluxo máximo, otimização de redes, caminhos aumentantes, gargalo.
 \end{resumo}
 
 \newpage
@@ -83,8 +82,6 @@ Em 1986, \textbf{Goldberg e Tarjan} propuseram o método \textit{Push-Relabel} \
 \textbf{Ahuja e Orlin} (1992) propuseram o \textit{Capacity Scaling} \cite{ahuja1993}, otimizando Ford-Fulkerson ao considerar apenas caminhos com capacidade acima de um limite, reduzindo buscas inúteis. Paralelamente, surgiram algoritmos distribuídos e paralelos, voltados a redes de computadores e processamento de grafos massivos, consolidando a aplicabilidade prática da teoria de fluxo em larga escala.
 
 \textbf{James Orlin} (2013) anunciou o algoritmo de fluxo máximo mais rápido conhecido até então \cite{orlin2013}, com complexidade $O(VE)$. \textbf{Goldberg e Rao} desenvolveram o algoritmo assintoticamente mais rápido para fluxo máximo, baseado em fluxos de bloqueio \cite{goldberg1998}, com tempo de execução $O\big(\min(V^{2/3}, E^{1/2}) \cdot E \cdot \log(V^2/E + 2) \cdot \log C \big)$, sem utilizar push-relabel.
-
-
 
 \newpage
 \section{Redes de Fluxo  (ou Rede Capacitada)} 
@@ -189,14 +186,13 @@ Com uma estratégia arbitrária (DFS), o número de iterações pode depender do
 
 \subsection{Problemas clássicos Modeláveis como Fluxo} 
 
-Além do próprio fluxo máximo e do corte mínimo, diversos problemas podem ser formulados como instâncias de fluxo em redes \cite{ahuja1993, cormen2009}. Entre os principais, destacam-se: 
+Diversos problemas que podem ser representados e resolvidos com problemas de fluxo de redes \cite{ahuja1993, cormen2009}. Entre os principais, destacam-se: 
 
 \begin{itemize} 
-\item \textbf{Casamento Bipartido Máximo:} modelado como rede $s\to$ lado esquerdo, arestas de capacidade 1 entre as partições, e lado direito $\to t$ \cite{hopcroft1973}. 
-\item \textbf{Atribuição (Assignment) e Escalonamento:} variantes com restrições de capacidade e custos, resolvidas por algoritmos de fluxo com custo mínimo (\emph{min-cost flow}) \cite{ahuja1993, kleinberg2006}. 
-\item \textbf{Circulação com Demandas:} generaliza fluxo máximo, permitindo balanços em vértices e cotas em arestas; é amplamente aplicado em cadeias de suprimento e logística \cite{ahuja1993}. 
-\item \textbf{Cortes Mínimos e \emph{s-t} cut:} computáveis a partir do grafo residual final, com aplicações modernas em segmentação de imagens e visão computacional \cite{boykov2001, kolmogorov2004}. 
-\item \textbf{Caminhos Disjuntos e Conectividade:} obtidos via reduções que impõem capacidades unitárias, sendo usados em problemas de conectividade e roteamento em redes \cite{ahuja1993}. 
+\item Fluxo Máximo em Redes de Transporte ou Logística;
+\item Problemas de Corte Mínimo em Redes; 
+\item Problemas de Emparelahamento em Grafos Bipartidos;  
+\item Distribuição de Recursos ou Tarefas em Sistemas Industriais 
 \end{itemize}
 
 
@@ -206,12 +202,10 @@ O problema de fluxo máximo e suas variações têm ampla aplicação em diversa
 
 
 \begin{itemize}
-    \item \textbf{Tráfego Urbano}: otimização de fluxos de veículos, identificação de congestionamentos e ajustes de direção de ruas \cite{saidane2002traffic, gupta2016traffic, dolgopolov2019traffic, gong2022traffic, iemini1994dynamic};
-    \item \textbf{Transporte e Logística}: maximização de rotas, distribuição de produtos e escalas de voo;
-    \item \textbf{Redes de Energia e Água}: otimização na transmissão de eletricidade e distribuição de água \cite{bulut2021optimization};
-    \item \textbf{Redes de Comunicação}: maximização da largura de banda, codificação em redes ad-hoc \cite{neto2015communication, zhang2005ad};
-    \item \textbf{Visão Computacional}: segmentação de imagens e minimização de energia \cite{boykov2001};
-    \item \textbf{Balanceamento de Carga}: roteamento dinâmico e balanceamento em redes computacionais \cite{tsiaka2008load, peijun2011routing}.
+    \item Transporte de Àgua, Energia Elétrica ou Dados em Redes;
+    \item Planejamento de Tráfego ou Logística de Transporte de Mercadorias;
+    \item Alocação de Tarefas em Computadores ou Projetos;
+    \item Redes Sociais e Análise de Influência.
 \end{itemize}
 
 
@@ -220,60 +214,45 @@ Essa trajetória histórica demonstra como o algoritmo de Ford-Fulkerson evoluiu
 
 \section{Vantagens e Desvantagens} \label{sec:vantagens}
 
-O estudo de problemas de fluxo em redes apresenta diversas vantagens. Uma das principais é a \textbf{generalidade do modelo}, que permite representar situações muito diferentes em uma mesma estrutura matemática, como transporte, logística, tráfego urbano e segmentação de imagens. 
-
-\noindent Essa flexibilidade decorre da capacidade de traduzir restrições reais em termos de capacidades de arestas e vértices \cite{ahuja1993,cormen2009}. Além disso, os algoritmos de fluxo máximo possuem bases matemáticas sólidas, com garantias de correção e tempo de execução polinomial, como nos métodos Ford-Fulkerson e Edmonds-Karp \cite{ford1956maximal,edmonds1972}. 
-
-\noindent Outro ponto forte é a \textbf{ampla aplicabilidade prática}. Problemas como o balanceamento de carga em redes de computadores, a transmissão de energia elétrica, a modelagem de tráfego e até a visão computacional encontram soluções diretas com técnicas de fluxo em redes \cite{boykov2004experimental,gupta2016traffic,gong2022traffic}. Isso faz com que a teoria não se restrinja ao campo acadêmico, mas possua impacto em indústrias estratégicas como transporte, telecomunicações e logística \cite{kleinberg2006}.
-
-\noindent Por outro lado, também existem limitações relevantes. Uma delas é a \textbf{complexidade computacional} em instâncias muito grandes ou com restrições adicionais, como múltiplos critérios de otimização, capacidades em vértices e fluxos com custos associados. Embora algoritmos avançados, como o de Preflow-Push \cite{goldberg1988}, ofereçam ganhos significativos, o custo computacional ainda pode ser elevado em aplicações de larga escala. 
-Por outro lado, também existem limitações relevantes. Uma delas é a \textbf{complexidade computacional} em instâncias muito grandes ou com restrições adicionais, como múltiplos critérios de otimização, capacidades em vértices e fluxos com custos associados. Embora algoritmos avançados, como o de Preflow-Push \cite{goldberg1988}, ofereçam ganhos significativos, o custo computacional ainda pode ser elevado em aplicações de larga escala. 
-
-\noindent Outra desvantagem está na \textbf{adequação do modelo} a problemas reais. Nem todas as situações podem ser descritas apenas em termos de capacidades e balanço de fluxo. Muitas vezes é necessário estender o modelo com restrições adicionais, como janelas de tempo, prioridades ou incertezas nos dados \cite{ahuja1993,papadimitriou1998}. Isso torna a implementação prática mais desafiadora e pode exigir heurísticas ou métodos híbridos de otimização. 
-
-\noindent Em resumo, os algoritmos de fluxo em redes se destacam pela robustez teórica e pela grande aplicabilidade, mas a escalabilidade e a modelagem de restrições complexas ainda são desafios presentes na literatura e na prática.
-
-
-
+\begin{itemize}
+    \item \textbf{Vantagens}: eficiência computacional (algoritmos polinomiais), simplicidade do modelo, aplicabilidade ampla.
+    \item \textbf{Desvantagens}: dificuldade de modelar restrições complexas, não captura todos os aspectos de problemas dinâmicos, dependência de dados precisos.
+\end{itemize}
 
 
 \section{Resultados}
-\subsection{Estudo de Caso} \label{sec:implementacao} 
+\subsection{Exemplo Prático} \label{sec:implementacao} 
 
-Nesta seção, ilustramos o funcionamento do Ford–Fulkerson em uma rede clássica. Usaremos os vértices ${S, A, B, C, D, E, F, G, H, I, J, K, L , M, T}$ e as capacidades mostradas na Figura,\ref{fig:grafo}. O objetivo é determinar o fluxo máximo de $S$ para $T$.\vskip1.5cm
+Nesta seção, ilustramos o funcionamento do Ford–Fulkerson em uma rede clássica. Usaremos os vértices ${S, A, B, C, D, E, F, G, H, I, J, K, L , M, T}$ e as capacidades mostradas na Figura,\ref{fig:grafo}. O objetivo é determinar o fluxo máximo de $S$ para $T$.\vskip0.5cm
 
-
-
+\begin{figure}[H]
+\centering
+\caption{Rede de teste para aplicação do algoritmo de Ford–Fulkerson}
+\label{fig:grafo}
 
 \begin{tikzpicture}[>=Stealth, font=\small]
   % estilo dos nós
   \tikzset{v/.style={circle, draw, minimum size=8mm, inner sep=1pt, align=center}}
-
   % --- Coordenadas fixas ajustadas ---
   \node[v] (S) at (0,0) {S};
-
   % Linha superior
   \node[v] (A) at (2,2.2)  {A};
   \node[v] (C) at (4,2.2)  {C};
   \node[v] (F) at (6,2.2)  {F};
   \node[v] (J) at (8,2.2)  {J};
   \node[v] (L) at (10,2.2) {L};
-
   % Linha central
   \node[v] (E) at (2,0.2)  {E};
   \node[v] (G) at (6,0.2)  {G};
   \node[v] (H) at (8,-0.2)  {H};
-
   % Linha inferior
   \node[v] (B) at (2,-2.2) {B};
   \node[v] (D) at (4,-2.2) {D};
   \node[v] (I) at (6,-2.2) {I};
   \node[v] (K) at (8,-2.2) {K};
   \node[v] (M) at (10,-2.2){M};
-
   % Nó destino
   \node[v, fill=red!12] (T) at (12,0) {T};
-
   % --- Arestas ajustadas ---
   \draw[->] (S) -- node[above] {30} (A);
   \draw[->] (S) -- node[below] {50} (B);
@@ -281,38 +260,503 @@ Nesta seção, ilustramos o funcionamento do Ford–Fulkerson em uma rede cláss
   \draw[->, bend left=25] (E) to node[above left] {10} (S); 
   \draw[->] (E) -- node[left] {10} (A);
   \draw[->] (E) -- node[below] {10} (D);
-
   \draw[->] (B) -- node[below] {40} (D);
   \draw[->] (D) -- node[below] {30} (I);
-
   \draw[->, bend left=15] (C) -- node[above] {5}  (I);
   \draw[->] (C) -- node[above] {10} (F);
-  
 \draw[->, bend left=35] (C) -- node[above right] {5} (H);
-
   \draw[->, bend right=10] (F) -- node[above] {5} (G);
   \draw[->] (F) -- node[above] {10} (J);
-
   \draw[->] (G) -- node[above] {10} (H);
   \draw[->, bend left=15] (G) -- node[above] {20} (L);
-
   \draw[->, bend left=10] (I) -- node[below right] {10} (H);
   \draw[->] (I) -- node[below] {20} (K);
-
   \draw[->] (H) -- node[above] {40} (K);
   \draw[->] (K) -- node[above] {70} (M);
+  \draw[->] (J) -- node[above] {20} (L);
+  \draw[->] (L) -- node[above] {40} (T);
+  \draw[->, bend right=15] (L) -- node[below right] {30} (H);
+  \draw[->, bend left=10] (H) -- node[above right] {20} (T);
+  \draw[->] (M) -- node[above] {80} (T);
+\end{tikzpicture}
+\end{figure}
 
+
+\newpage
+\subsection{Implementação em Python}
+
+A implementação do algoritmo de Ford-Fulkerson em Python, particularmente a versão Edmonds-Karp, envolve representar o grafo e a lógica para encontrar caminhos aumentantes e atualizar o fluxo.\vskip0.5cm
+
+
+\begin{lstlisting}[language=Python, caption={}, label={lst:fordfulkerson}]
+
+from collections import deque, defaultdict
+# -------------- Definicao do grafo -------------- #
+graph = {
+    'S': {'A': 30, 'B': 50},
+    'A': {'C': 40},
+    'B': {'D': 40},
+    'C': {'F': 10, 'H': 5, 'I':5},
+    'D': {'I': 30},
+    'F': {'G': 5, 'J': 10},
+    'G': {'H': 20, 'L': 20},
+    'H': {'K': 40, 'T': 20},
+    'I': {'H': 10, 'K': 20},
+    'J': {'L': 20},
+    'K': {'M': 70},
+    'L': {'H':30 ,'T': 40},
+    'M': {'T': 80},
+    'T': {}
+}
+# --------- Algoritmo de Ford-Fulkerson --------- #
+def bfs(rGraph, source, sink, parent):
+    visited = set()
+    queue = deque([source])
+    visited.add(source)
+
+    while queue:
+        u = queue.popleft()
+        for v, cap in rGraph[u].items():
+            if v not in visited and cap > 0:
+                parent[v] = u
+                visited.add(v)
+                queue.append(v)
+                if v == sink:
+                    return True
+    return False
+
+def ford_fulkerson(graph, source, sink):
+    # Criar grafo residual
+    rGraph = defaultdict(dict)
+    for u in graph:
+        for v, cap in graph[u].items():
+            rGraph[u][v] = cap
+            rGraph[v][u] = 0  # Aresta reversa
+
+    max_flow = 0
+    paths = []  # Para armazenar caminhos aumentantes
+    parent = {}
+
+    while bfs(rGraph, source, sink, parent):
+        # Encontrar fluxo mínimo no caminho aumentante
+        path_flow = float("Inf")
+        v = sink
+        path = []
+        while v != source:
+            u = parent[v]
+            path_flow = min(path_flow, rGraph[u][v])
+            path.append(v)
+            v = u
+        path.append(source)
+        path.reverse()
+
+        # Atualizar grafo residual
+        v = sink
+        while v != source:
+            u = parent[v]
+            rGraph[u][v] -= path_flow
+            rGraph[v][u] += path_flow
+            v = u
+
+        max_flow += path_flow
+        paths.append((path, path_flow))  # Armazenar caminho + fluxo
+
+        parent = {}  # Resetar parent para próxima iteração
+
+    return max_flow, paths
+
+# ---------- Execucao ---------- #
+if __name__ == "__main__":
+    max_flow, paths = ford_fulkerson(graph, 'S', 'T')
+
+    print("Fluxo máximo =", max_flow)
+    print("\nCaminhos aumentantes:")
+    for i, (p, f) in enumerate(paths, 1):
+        print(f"{i}: Caminho {p}  |  Δ = {f}")
+\end{lstlisting}
+
+
+
+\newpage
+\subsection{Aplicação do Algoritmo Ford--Fulkerson}
+
+A seguir aplicamos o Ford--Fulkerson à rede da Fig.~\ref{fig:grafo}. Em cada iteração escolhemos um caminho aumentante, calculamos o gargalo \(\Delta\) e atualizamos o valor acumulado do fluxo \( |f|\). Para clareza, em cada figura o caminho escolhido é destacado em \textbf{azul}.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\paragraph{Iteração 1.} Caminho aumentante
+\[
+S \to A \to C \to F \to J \to L \to T
+\]
+Capacidades ao longo do caminho: \((30,40,10,10,20,40)\), portanto \(\Delta = \min = \mathbf{5}\).
+Fluxo acumulado após a iteração: \(|f|= 0+5 = \mathbf{5}\).
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, scale=1]
+  \tikzset{v/.style={circle, draw, minimum size=8mm, inner sep=1pt, align=center}}
+  \node[v] (S) at (0,0) {S};
+  \node[v] (A) at (2,2.2)  {A};
+  \node[v] (C) at (4,2.2)  {C};
+  \node[v] (F) at (6,2.2)  {F};
+  \node[v] (J) at (8,2.2)  {J};
+  \node[v] (L) at (10,2.2) {L};
+  \node[v] (E) at (2,0.2)  {E};
+  \node[v] (G) at (6,0.2)  {G};
+  \node[v] (H) at (8,-0.2)  {H};
+  \node[v] (B) at (2,-2.2) {B};
+  \node[v] (D) at (4,-2.2) {D};
+  \node[v] (I) at (6,-2.2) {I};
+  \node[v] (K) at (8,-2.2) {K};
+  \node[v] (M) at (10,-2.2){M};
+  \node[v, fill=red!12] (T) at (12,0) {T};
+
+  % arestas padrão (pretas)
+  \draw[->] (S) -- node[above] {30} (A);
+  \draw[->] (S) -- node[below] {50} (B);
+  \draw[->] (A) -- node[above] {40} (C);
+  \draw[->, bend left=25] (E) to node[above left] {10} (S); 
+  \draw[->] (E) -- node[left] {10} (A);
+  \draw[->] (E) -- node[below] {10} (D);
+  \draw[->] (B) -- node[below] {40} (D);
+  \draw[->] (D) -- node[below] {30} (I);
+  \draw[->, bend left=15] (C) -- node[above] {5}  (I);
+  \draw[->] (C) -- node[above] {10} (F);
+  \draw[->, bend left=35] (C) -- node[above right] {5} (H);
+  \draw[->, bend right=10] (F) -- node[above] {5} (G);
+  \draw[->] (F) -- node[above] {10} (J);
+  \draw[->] (G) -- node[above] {10} (H);
+  \draw[->, bend left=15] (G) -- node[above] {20} (L);
+  \draw[->, bend left=10] (I) -- node[below right] {10} (H);
+  \draw[->] (I) -- node[below] {20} (K);
+  \draw[->] (H) -- node[above] {40} (K);
+  \draw[->] (K) -- node[above] {70} (M);
+  \draw[->] (J) -- node[above] {20} (L);
+  \draw[->] (L) -- node[above] {40} (T);
+  \draw[->, bend right=15] (L) -- node[below right] {30} (H);
+  \draw[->, bend left=10] (H) -- node[above right] {20} (T);
+  \draw[->] (M) -- node[above] {80} (T);
+
+  % destaque do caminho (azul grosso)
+  \draw[ultra thick,blue,->] (S) -- (A);
+  \draw[ultra thick,blue,->] (A) -- (C);
+  \draw[ultra thick,blue,->] (C) -- (F);
+  \draw[ultra thick,blue,->] (F) -- (J);
+  \draw[ultra thick,blue,->] (J) -- (L);
+  \draw[ultra thick,blue,->] (L) -- (T);
+\end{tikzpicture}
+\end{center}
+
+\paragraph{Iteração 2.} Caminho aumentante
+\[
+S \to A \to C \to F \to G \to H \to K \to M \to T
+\]
+Capacidades: \((30,40,10,5,10,40,70,80)\) \(\Rightarrow\) \(\Delta=\mathbf{5}\).
+Atualização: \(|f| \gets 5+5 = \mathbf{10}\).
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, scale=1]
+  \tikzset{v/.style={circle, draw, minimum size=8mm, inner sep=1pt, align=center}}
+  \node[v] (S) at (0,0) {S};
+  \node[v] (A) at (2,2.2)  {A};
+  \node[v] (C) at (4,2.2)  {C};
+  \node[v] (F) at (6,2.2)  {F};
+  \node[v] (J) at (8,2.2)  {J};
+  \node[v] (L) at (10,2.2) {L};
+  \node[v] (E) at (2,0.2)  {E};
+  \node[v] (G) at (6,0.2)  {G};
+  \node[v] (H) at (8,-0.2)  {H};
+  \node[v] (B) at (2,-2.2) {B};
+  \node[v] (D) at (4,-2.2) {D};
+  \node[v] (I) at (6,-2.2) {I};
+  \node[v] (K) at (8,-2.2) {K};
+  \node[v] (M) at (10,-2.2){M};
+  \node[v, fill=red!12] (T) at (12,0) {T};
+
+  % arestas padrão
+  \draw[->] (S) -- node[above] {30} (A);
+  \draw[->] (S) -- node[below] {50} (B);
+  \draw[->] (A) -- node[above] {40} (C);
+  \draw[->, bend left=25] (E) to node[above left] {10} (S); 
+  \draw[->] (E) -- node[left] {10} (A);
+  \draw[->] (E) -- node[below] {10} (D);
+  \draw[->] (B) -- node[below] {40} (D);
+  \draw[->] (D) -- node[below] {30} (I);
+  \draw[->, bend left=15] (C) -- node[above] {5}  (I);
+  \draw[->] (C) -- node[above] {10} (F);
+  \draw[->, bend left=35] (C) -- node[above right] {5} (H);
+  \draw[->, bend right=10] (F) -- node[above] {5} (G);
+  \draw[->] (F) -- node[above] {10} (J);
+  \draw[->] (G) -- node[above] {10} (H);
+  \draw[->, bend left=15] (G) -- node[above] {20} (L);
+  \draw[->, bend left=10] (I) -- node[below right] {10} (H);
+  \draw[->] (I) -- node[below] {20} (K);
+  \draw[->] (H) -- node[above] {40} (K);
+  \draw[->] (K) -- node[above] {70} (M);
+  \draw[->] (J) -- node[above] {20} (L);
+  \draw[->] (L) -- node[above] {40} (T);
+  \draw[->, bend right=15] (L) -- node[below right] {30} (H);
+  \draw[->, bend left=10] (H) -- node[above right] {20} (T);
+  \draw[->] (M) -- node[above] {80} (T);
+
+  % destaque do caminho
+  \draw[ultra thick,blue,->] (S) -- (A);
+  \draw[ultra thick,blue,->] (A) -- (C);
+  \draw[ultra thick,blue,->] (C) -- (F);
+  \draw[ultra thick,blue,->] (F) -- (G);
+  \draw[ultra thick,blue,->] (G) -- (H);
+  \draw[ultra thick,blue,->] (H) -- (K);
+  \draw[ultra thick,blue,->] (K) -- (M);
+  \draw[ultra thick,blue,->] (M) -- (T);
+\end{tikzpicture}
+\end{center}
+
+\paragraph{Iteração 3.} Caminho aumentante
+\[
+S \to A \to C \to H \to T
+\]
+Capacidades: \((30,40,5,20)\) \(\Rightarrow\) \(\Delta=\mathbf{5}\).
+Atualização: \(|f| \gets 10+5 = \mathbf{15}\).
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, scale=1]
+  \tikzset{v/.style={circle, draw, minimum size=8mm, inner sep=1pt, align=center}}
+  \node[v] (S) at (0,0) {S};
+  \node[v] (A) at (2,2.2)  {A};
+  \node[v] (C) at (4,2.2)  {C};
+  \node[v] (F) at (6,2.2)  {F};
+  \node[v] (J) at (8,2.2)  {J};
+  \node[v] (L) at (10,2.2) {L};
+  \node[v] (E) at (2,0.2)  {E};
+  \node[v] (G) at (6,0.2)  {G};
+  \node[v] (H) at (8,-0.2)  {H};
+  \node[v] (B) at (2,-2.2) {B};
+  \node[v] (D) at (4,-2.2) {D};
+  \node[v] (I) at (6,-2.2) {I};
+  \node[v] (K) at (8,-2.2) {K};
+  \node[v] (M) at (10,-2.2){M};
+  \node[v, fill=red!12] (T) at (12,0) {T};
+
+  % arestas
+  \draw[->] (S) -- node[above] {30} (A);
+  \draw[->] (S) -- node[below] {50} (B);
+  \draw[->] (A) -- node[above] {40} (C);
+  \draw[->, bend left=25] (E) to node[above left] {10} (S); 
+  \draw[->] (E) -- node[left] {10} (A);
+  \draw[->] (E) -- node[below] {10} (D);
+  \draw[->] (B) -- node[below] {40} (D);
+  \draw[->] (D) -- node[below] {30} (I);
+  \draw[->, bend left=15] (C) -- node[above] {5}  (I);
+  \draw[->] (C) -- node[above] {10} (F);
+  \draw[->, bend left=35] (C) -- node[above right] {5} (H);
+  \draw[->, bend right=10] (F) -- node[above] {5} (G);
+  \draw[->] (F) -- node[above] {10} (J);
+  \draw[->] (G) -- node[above] {10} (H);
+  \draw[->, bend left=15] (G) -- node[above] {20} (L);
+  \draw[->, bend left=10] (I) -- node[below right] {10} (H);
+  \draw[->] (I) -- node[below] {20} (K);
+  \draw[->] (H) -- node[above] {40} (K);
+  \draw[->] (K) -- node[above] {70} (M);
+  \draw[->] (J) -- node[above] {20} (L);
+  \draw[->] (L) -- node[above] {40} (T);
+  \draw[->, bend right=15] (L) -- node[below right] {30} (H);
+  \draw[->, bend left=10] (H) -- node[above right] {20} (T);
+  \draw[->] (M) -- node[above] {80} (T);
+
+  % destaque
+  \draw[ultra thick,blue,->] (S) -- (A);
+  \draw[ultra thick,blue,->] (A) -- (C);
+  \draw[ultra thick,blue,->, bend left=35] (C) -- (H);
+  \draw[ultra thick,blue,->, bend left=10] (H) -- (T);
+\end{tikzpicture}
+\end{center}
+
+\paragraph{Iteração 4.} Caminho aumentante
+\[
+S \to B \to D \to I \to K \to M \to T
+\]
+Capacidades: \((50,40,30,20,70,80)\) \(\Rightarrow\) \(\Delta=\mathbf{20}\).
+Atualização: \(|f| \gets 15+20 = \mathbf{35}\).
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, scale=1]
+  \tikzset{v/.style={circle, draw, minimum size=8mm, inner sep=1pt, align=center}}
+  \node[v] (S) at (0,0) {S};
+  \node[v] (A) at (2,2.2)  {A};
+  \node[v] (C) at (4,2.2)  {C};
+  \node[v] (F) at (6,2.2)  {F};
+  \node[v] (J) at (8,2.2)  {J};
+  \node[v] (L) at (10,2.2) {L};
+  \node[v] (E) at (2,0.2)  {E};
+  \node[v] (G) at (6,0.2)  {G};
+  \node[v] (H) at (8,-0.2)  {H};
+  \node[v] (B) at (2,-2.2) {B};
+  \node[v] (D) at (4,-2.2) {D};
+  \node[v] (I) at (6,-2.2) {I};
+  \node[v] (K) at (8,-2.2) {K};
+  \node[v] (M) at (10,-2.2){M};
+  \node[v, fill=red!12] (T) at (12,0) {T};
+
+  % arestas
+  \draw[->] (S) -- node[above] {30} (A);
+  \draw[->] (S) -- node[below] {50} (B);
+  \draw[->] (A) -- node[above] {40} (C);
+  \draw[->, bend left=25] (E) to node[above left] {10} (S); 
+  \draw[->] (E) -- node[left] {10} (A);
+  \draw[->] (E) -- node[below] {10} (D);
+  \draw[->] (B) -- node[below] {40} (D);
+  \draw[->] (D) -- node[below] {30} (I);
+  \draw[->, bend left=15] (C) -- node[above] {5}  (I);
+  \draw[->] (C) -- node[above] {10} (F);
+  \draw[->, bend left=35] (C) -- node[above right] {5} (H);
+  \draw[->, bend right=10] (F) -- node[above] {5} (G);
+  \draw[->] (F) -- node[above] {10} (J);
+  \draw[->] (G) -- node[above] {10} (H);
+  \draw[->, bend left=15] (G) -- node[above] {20} (L);
+  \draw[->, bend left=10] (I) -- node[below right] {10} (H);
+  \draw[->] (I) -- node[below] {20} (K);
+  \draw[->] (H) -- node[above] {40} (K);
+  \draw[->] (K) -- node[above] {70} (M);
+  \draw[->] (J) -- node[above] {20} (L);
+  \draw[->] (L) -- node[above] {40} (T);
+  \draw[->, bend right=15] (L) -- node[below right] {30} (H);
+  \draw[->, bend left=10] (H) -- node[above right] {20} (T);
+  \draw[->] (M) -- node[above] {80} (T);
+
+  % destaque
+  \draw[ultra thick,blue,->] (S) -- (B);
+  \draw[ultra thick,blue,->] (B) -- (D);
+  \draw[ultra thick,blue,->] (D) -- (I);
+  \draw[ultra thick,blue,->] (I) -- (K);
+  \draw[ultra thick,blue,->] (K) -- (M);
+  \draw[ultra thick,blue,->] (M) -- (T);
+\end{tikzpicture}
+\end{center}
+
+\paragraph{Iteração 5.} Caminho aumentante
+\[
+S \to B \to D \to I \to H \to K \to M \to T
+\]
+Capacidades (após as iterações anteriores): $\((50, \, 40, \, 10\text{--rem}, \, 10, \, 40, \, 70, \, 80)\) \(\Rightarrow\) \(\Delta=\mathbf{10}\)$.
+Atualização: $\(|f| \gets 35+10 = \mathbf{45}\)$.
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, font=\small, scale=1]
+  \tikzset{v/.style={circle, draw, minimum size=8mm, inner sep=1pt, align=center}}
+  \node[v] (S) at (0,0) {S};
+  \node[v] (A) at (2,2.2)  {A};
+  \node[v] (C) at (4,2.2)  {C};
+  \node[v] (F) at (6,2.2)  {F};
+  \node[v] (J) at (8,2.2)  {J};
+  \node[v] (L) at (10,2.2) {L};
+  \node[v] (E) at (2,0.2)  {E};
+  \node[v] (G) at (6,0.2)  {G};
+  \node[v] (H) at (8,-0.2)  {H};
+  \node[v] (B) at (2,-2.2) {B};
+  \node[v] (D) at (4,-2.2) {D};
+  \node[v] (I) at (6,-2.2) {I};
+  \node[v] (K) at (8,-2.2) {K};
+  \node[v] (M) at (10,-2.2){M};
+  \node[v, fill=red!12] (T) at (12,0) {T};
+
+  % arestas
+  \draw[->] (S) -- node[above] {30} (A);
+  \draw[->] (S) -- node[below] {50} (B);
+  \draw[->] (A) -- node[above] {40} (C);
+  \draw[->, bend left=25] (E) to node[above left] {10} (S); 
+  \draw[->] (E) -- node[left] {10} (A);
+  \draw[->] (E) -- node[below] {10} (D);
+  \draw[->] (B) -- node[below] {40} (D);
+  \draw[->] (D) -- node[below] {30} (I);
+  \draw[->, bend left=15] (C) -- node[above] {5}  (I);
+  \draw[->] (C) -- node[above] {10} (F);
+  \draw[->, bend left=35] (C) -- node[above right] {5} (H);
+  \draw[->, bend right=10] (F) -- node[above] {5} (G);
+  \draw[->] (F) -- node[above] {10} (J);
+  \draw[->] (G) -- node[above] {10} (H);
+  \draw[->, bend left=15] (G) -- node[above] {20} (L);
+  \draw[->, bend left=10] (I) -- node[below right] {10} (H);
+  \draw[->] (I) -- node[below] {20} (K);
+  \draw[->] (H) -- node[above] {40} (K);
+  \draw[->] (K) -- node[above] {70} (M);
   \draw[->] (J) -- node[above] {20} (L);
   \draw[->] (L) -- node[above] {40} (T);
   \draw[->, bend right=15] (L) -- node[below right] {30} (H);
 
   \draw[->, bend left=10] (H) -- node[above right] {20} (T);
   \draw[->] (M) -- node[above] {80} (T);
-\end{tikzpicture}
 
-\newpage
-\subsection{Implementação em Python}
-A implementação do algoritmo de Ford-Fulkerson em Python, particularmente a versão Edmonds-Karp, envolve representar o grafo e a lógica para encontrar caminhos aumentantes e atualizar o fluxo.
+  % destaque
+  \draw[ultra thick,blue,->] (S) -- (B);
+  \draw[ultra thick,blue,->] (B) -- (D);
+  \draw[ultra thick,blue,->] (D) -- (I);
+  \draw[ultra thick,blue,->, bend left=10] (I) -- (H);
+  \draw[ultra thick,blue,->] (H) -- (K);
+  \draw[ultra thick,blue,->] (K) -- (M);
+  \draw[ultra thick,blue,->] (M) -- (T);
+\end{tikzpicture}
+\end{center}
+
+\paragraph{Ótimo (parada).} Não há mais caminho aumentante que aumente \(|f|\) além de \(45\). De fato, o corte
+\[
+S^*=\{S, A, B, C, D, I\},\quad T^*=V\setminus S^*
+\]
+tem capacidade
+\[
+c(S^*,T^*) = c(C,F)+c(C,H)+c(I,K)+c(I,H) = 10+5+20+10 = \mathbf{45},
+\]
+logo, pelo Teorema Fluxo Máximo–Corte Mínimo, o valor ótimo é \(|f|=\mathbf{45}\).
+
+
+
+
+\begin{table}[H]
+\centering
+\caption{Resumo das iterações do algoritmo Ford–Fulkerson na rede da Fig.~\ref{fig:grafo}.}
+\begin{tabular}{|c|l|c|c|}
+\hline
+Iteração & Caminho Aumentante & $\Delta$ & $|f|$ acumulado \\
+\hline
+1 & $S\to A\to C\to F\to J\to L\to T$ & 5 & 5 \\
+2 & $S\to A\to C\to F\to G\to H\to K\to M\to T$ & 5 & 10 \\
+3 & $S\to A\to C\to H\to T$ & 5 & 15 \\
+4 & $S\to B\to D\to I\to K\to M\to T$ & 20 & 35 \\
+5 & $S\to B\to D\to I\to H\to K\to M\to T$ & 10 & 45 \\
+\hline
+\end{tabular}
+\end{table}
+
+
+
+
+
+
+
 
 
 
