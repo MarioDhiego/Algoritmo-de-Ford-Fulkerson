@@ -24,6 +24,55 @@
 \usepackage{algpseudocode}
 \usepackage{listings}
 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegray},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{gray},
+    stringstyle=\color{purple},
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    stringstyle=\color{red},
+    commentstyle=\color{gray},
+    breaklines=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    frame=single,
+    captionpos=b
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \sloppy
 \title{O Problema de Fluxo Máximo em Redes: Implementação do Algoritmo de Ford-Fulkerson em Python}
 
@@ -289,9 +338,9 @@ A implementação do algoritmo de Ford-Fulkerson em Python, particularmente a ve
 
 
 \begin{lstlisting}[language=Python, caption={}, label={lst:fordfulkerson}]
-
+#---------------------- Pacotes ------------------------------#
 from collections import deque, defaultdict
-# -------------- Definicao do grafo -------------- #
+#--------------------- Definicao do Grafo --------------------#
 graph = {
     'S': {'A': 30, 'B': 50},
     'A': {'C': 40},
@@ -307,13 +356,17 @@ graph = {
     'L': {'H':30 ,'T': 40},
     'M': {'T': 80},
     'T': {}
-}
-# --------- Algoritmo de Ford-Fulkerson --------- #
+    }
+#-------------------------------------------------------------#
+\end{lstlisting}
+
+
+\begin{lstlisting}
+# -------------- Algoritmo de Ford-Fulkerson ---------------- #
 def bfs(rGraph, source, sink, parent):
     visited = set()
     queue = deque([source])
     visited.add(source)
-
     while queue:
         u = queue.popleft()
         for v, cap in rGraph[u].items():
@@ -324,21 +377,26 @@ def bfs(rGraph, source, sink, parent):
                 if v == sink:
                     return True
     return False
-
 def ford_fulkerson(graph, source, sink):
-    # Criar grafo residual
+\end{lstlisting}
+
+\newpage
+\begin{lstlisting}
+#------------------- Criar Grafo Residual --------------------#
     rGraph = defaultdict(dict)
     for u in graph:
         for v, cap in graph[u].items():
             rGraph[u][v] = cap
             rGraph[v][u] = 0  # Aresta reversa
-
     max_flow = 0
     paths = []  # Para armazenar caminhos aumentantes
     parent = {}
-
     while bfs(rGraph, source, sink, parent):
-        # Encontrar fluxo mínimo no caminho aumentante
+#-------------------------------------------------------------#
+\end{lstlisting}
+
+\begin{lstlisting}
+#-------- Encontrar Fluxo Minimo no Caminho Aumentante -------#
         path_flow = float("Inf")
         v = sink
         path = []
@@ -349,30 +407,34 @@ def ford_fulkerson(graph, source, sink):
             v = u
         path.append(source)
         path.reverse()
+#-------------------------------------------------------------#
+\end{lstlisting}
 
-        # Atualizar grafo residual
+\begin{lstlisting}
+#----------------- Atualizar Grafo Residual ------------------#
         v = sink
         while v != source:
             u = parent[v]
             rGraph[u][v] -= path_flow
             rGraph[v][u] += path_flow
             v = u
-
         max_flow += path_flow
         paths.append((path, path_flow))  # Armazenar caminho + fluxo
-
-        parent = {}  # Resetar parent para próxima iteração
-
+        parent = {}  # Resetar parent para proxima iteracao
     return max_flow, paths
+#-------------------------------------------------------------#
+\end{lstlisting}
 
-# ---------- Execucao ---------- #
+\begin{lstlisting}
+# ----------------------- Execucao -------------------------- #
 if __name__ == "__main__":
     max_flow, paths = ford_fulkerson(graph, 'S', 'T')
 
-    print("Fluxo máximo =", max_flow)
-    print("\nCaminhos aumentantes:")
+    print("Fluxo Maximo =", max_flow)
+    print("\n Caminhos Aumentantes:")
     for i, (p, f) in enumerate(paths, 1):
         print(f"{i}: Caminho {p}  |  Δ = {f}")
+#-------------------------------------------------------------#
 \end{lstlisting}
 
 
@@ -380,34 +442,7 @@ if __name__ == "__main__":
 \newpage
 \subsection{Aplicação do Algoritmo Ford--Fulkerson}
 
-A seguir aplicamos o Ford--Fulkerson à rede da Fig.~\ref{fig:grafo}. Em cada iteração escolhemos um caminho aumentante, calculamos o gargalo \(\Delta\) e atualizamos o valor acumulado do fluxo \( |f|\). Para clareza, em cada figura o caminho escolhido é destacado em \textbf{azul}.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+A seguir aplicamos o Ford--Fulkerson à rede da Fig.~\ref{fig:grafo}. Em cada iteração escolhemos um caminho aumentante, calculamos o gargalo \(\Delta\) e atualizamos o valor acumulado do fluxo \( |f|\). Para clareza, em cada figura o caminho escolhido é destacado em \textbf{vermnelho}.
 
 
 \paragraph{Iteração 1.} Caminho aumentante
@@ -463,12 +498,12 @@ Fluxo acumulado após a iteração: \(|f|= 0+5 = \mathbf{5}\).
   \draw[->] (M) -- node[above] {80} (T);
 
   % destaque do caminho (azul grosso)
-  \draw[ultra thick,blue,->] (S) -- (A);
-  \draw[ultra thick,blue,->] (A) -- (C);
-  \draw[ultra thick,blue,->] (C) -- (F);
-  \draw[ultra thick,blue,->] (F) -- (J);
-  \draw[ultra thick,blue,->] (J) -- (L);
-  \draw[ultra thick,blue,->] (L) -- (T);
+  \draw[ultra thick,red,->] (S) -- (A);
+  \draw[ultra thick,red,->] (A) -- (C);
+  \draw[ultra thick,red,->] (C) -- (F);
+  \draw[ultra thick,red,->] (F) -- (J);
+  \draw[ultra thick,red,->] (J) -- (L);
+  \draw[ultra thick,red,->] (L) -- (T);
 \end{tikzpicture}
 \end{center}
 
@@ -525,14 +560,13 @@ Atualização: \(|f| \gets 5+5 = \mathbf{10}\).
   \draw[->] (M) -- node[above] {80} (T);
 
   % destaque do caminho
-  \draw[ultra thick,blue,->] (S) -- (A);
-  \draw[ultra thick,blue,->] (A) -- (C);
-  \draw[ultra thick,blue,->] (C) -- (F);
-  \draw[ultra thick,blue,->] (F) -- (G);
-  \draw[ultra thick,blue,->] (G) -- (H);
-  \draw[ultra thick,blue,->] (H) -- (K);
-  \draw[ultra thick,blue,->] (K) -- (M);
-  \draw[ultra thick,blue,->] (M) -- (T);
+  \draw[ultra thick,red,->] (S) -- (A);
+  \draw[ultra thick,red,->] (C) -- (F);
+  \draw[ultra thick,red,->] (F) -- (G);
+  \draw[ultra thick,red,->] (G) -- (H);
+  \draw[ultra thick,red,->] (H) -- (K);
+  \draw[ultra thick,red,->] (K) -- (M);
+  \draw[ultra thick,red,->] (M) -- (T);
 \end{tikzpicture}
 \end{center}
 
@@ -589,10 +623,10 @@ Atualização: \(|f| \gets 10+5 = \mathbf{15}\).
   \draw[->] (M) -- node[above] {80} (T);
 
   % destaque
-  \draw[ultra thick,blue,->] (S) -- (A);
-  \draw[ultra thick,blue,->] (A) -- (C);
-  \draw[ultra thick,blue,->, bend left=35] (C) -- (H);
-  \draw[ultra thick,blue,->, bend left=10] (H) -- (T);
+  \draw[ultra thick,red,->] (S) -- (A);
+  \draw[ultra thick,red,->] (A) -- (C);
+  \draw[ultra thick,red,->, bend left=35] (C) -- (H);
+  \draw[ultra thick,red,->, bend left=10] (H) -- (T);
 \end{tikzpicture}
 \end{center}
 
@@ -649,12 +683,12 @@ Atualização: \(|f| \gets 15+20 = \mathbf{35}\).
   \draw[->] (M) -- node[above] {80} (T);
 
   % destaque
-  \draw[ultra thick,blue,->] (S) -- (B);
-  \draw[ultra thick,blue,->] (B) -- (D);
-  \draw[ultra thick,blue,->] (D) -- (I);
-  \draw[ultra thick,blue,->] (I) -- (K);
-  \draw[ultra thick,blue,->] (K) -- (M);
-  \draw[ultra thick,blue,->] (M) -- (T);
+  \draw[ultra thick,red,->] (S) -- (B);
+  \draw[ultra thick,red,->] (B) -- (D);
+  \draw[ultra thick,red,->] (D) -- (I);
+  \draw[ultra thick,red,->] (I) -- (K);
+  \draw[ultra thick,red,->] (K) -- (M);
+  \draw[ultra thick,red,->] (M) -- (T);
 \end{tikzpicture}
 \end{center}
 
@@ -712,13 +746,13 @@ Atualização: $\(|f| \gets 35+10 = \mathbf{45}\)$.
   \draw[->] (M) -- node[above] {80} (T);
 
   % destaque
-  \draw[ultra thick,blue,->] (S) -- (B);
-  \draw[ultra thick,blue,->] (B) -- (D);
-  \draw[ultra thick,blue,->] (D) -- (I);
-  \draw[ultra thick,blue,->, bend left=10] (I) -- (H);
-  \draw[ultra thick,blue,->] (H) -- (K);
-  \draw[ultra thick,blue,->] (K) -- (M);
-  \draw[ultra thick,blue,->] (M) -- (T);
+  \draw[ultra thick,red,->] (S) -- (B);
+  \draw[ultra thick,red,->] (B) -- (D);
+  \draw[ultra thick,red,->] (D) -- (I);
+  \draw[ultra thick,red,->, bend left=10] (I) -- (H);
+  \draw[ultra thick,red,->] (H) -- (K);
+  \draw[ultra thick,red,->] (K) -- (M);
+  \draw[ultra thick,red,->] (M) -- (T);
 \end{tikzpicture}
 \end{center}
 
