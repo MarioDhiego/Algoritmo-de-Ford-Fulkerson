@@ -5,6 +5,7 @@
 % DISCIPLINA: GRAFOS
 % DOCENTE: ROBERTO SAMARONE
 % DISCENTE: MÁRIO DIEGO VALENTE
+% DISCENTE: FABRICIO DOS SANTOS ASSUNÇÃO
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \documentclass[12pt]{article}
@@ -56,47 +57,31 @@
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \sloppy
 \title{O Problema de Fluxo Máximo em Redes: Implementação do Algoritmo de Ford-Fulkerson em Python}
 
-\author{Mário Diego Rocha Valente\inst{1}, Fabrício Santos Assunção\inst{1},Roberto Samarone dos Santos\inst{2}}
+\author{Mário Diego Rocha Valente\inst{1}, Roberto Samarone dos Santos\inst{2}}
 
-\address{Graduando em Sistemas de Informação - Universidade Federal do Pará(UFPA) \\
+\address{Estatístico, Analista de Trânsito(DETRAN-PA) \\ Graduando em Sistemas de Informação - Universidade Federal do Pará(UFPA) \\
   Rua Augusto Corrêa, 01 - Guamá - Belém - PA - Brasil
 \nextinstitute
   Professor Dr., Faculdade de Computação - Universidade Federal do Pará(UFPA)\\
   Rua Augusto Corrêa, 01 - Guamá - Belém - PA - Brasil \\
-  \email{diego.vatente@gmail.com, fabricioassuncao71@gmail.com, rsa@ufpa.br}
+  \email{mario.vatente@detran.pa.gov.br, rsa@ufpa.br}
   }
 
 \begin{document} 
 \maketitle
 
 \begin{abstract}
- This paper presents a comprehensive study of the maximum flow problem in networks, focusing on the Ford–Fulkerson algorithm. It covers historical background, formal definitions, the Max-Flow/Min-Cut theorem, classical problems modeled as flows, and practical applications. A step-by-step Python implementation is illustrated with a sample network. For instance, in the first augmenting path $S→A→C→F→J→L→T$, the bottleneck capacity was 5, increasing the accumulated flow to 5 units. Following all iterations, the algorithm reaches the optimal maximum flow of ∣f∣=45, in accordance with the Max-Flow/Min-Cut theorem. The main contribution is a didactic presentation that integrates theory and practice, serving as a guide for understanding and applying network flow optimization techniques in computer science, engineering, and operational research contexts.\vskip0.3cm
+ This paper presents a comprehensive study of the maximum flow problem in networks, focusing on the Ford–Fulkerson algorithm. It covers historical background, formal definitions, the Max-Flow/Min-Cut theorem, classical problems modeled as flows, and practical applications. A step-by-step Python implementation is illustrated with a sample network. For instance, in the first augmenting path $S \rightarrow A \rightarrow C \rightarrow F \rightarrow J \rightarrow L \rightarrow T$, the bottleneck capacity was 5, increasing the accumulated flow to 5 units. Following all iterations, the algorithm reaches the optimal maximum flow of $∣f∣=45$, in accordance with the Max-Flow/Min-Cut theorem. The main contribution is a didactic presentation that integrates theory and practice, serving as a guide for understanding and applying network flow optimization techniques in computer science, engineering, and operational research contexts.
+ \vskip0.3cm
   \textbf{Keywords}: Ford–Fulkerson algorithm, maximum flow, network optimization, augmenting paths, bottleneck.
 \end{abstract}
      
 \begin{resumo} 
-Este artigo apresenta um estudo detalhado sobre o problema de fluxo máximo em redes, enfatizando o algoritmo de Ford–Fulkerson. São abordados aspectos históricos, definições formais, o Teorema do Fluxo Máximo/Corte Mínimo, problemas clássicos modeláveis por fluxo e suas aplicações práticas. Inclui-se uma implementação passo a passo em Python, ilustrada com uma rede exemplo. Na primeira iteração, o caminho aumentante 
-$S→A→C→F→J→L→T$ apresentou capacidade mínima de 5, elevando o fluxo acumulado para 5 unidades. Após todas as iterações, o algoritmo atinge o fluxo máximo ótimo $∣f∣=45$, conforme previsto pelo Teorema do Fluxo Máximo/Corte Mínimo. A principal contribuição consiste em integrar teoria e prática de forma didática, fornecendo uma referência útil para o ensino e aplicação de técnicas de otimização de fluxo em ciência da computação, engenharia e pesquisa operacional.. \vskip0.3cm
+Este artigo apresenta um estudo detalhado sobre o problema de fluxo máximo em redes, enfatizando o algoritmo de Ford–Fulkerson. São abordados aspectos históricos, definições formais, o Teorema do Fluxo Máximo/Corte Mínimo, problemas clássicos modeláveis por fluxo e suas aplicações práticas. Inclui-se uma implementação na linguagem de programação Python, ilustrada com uma rede exemplo. Na primeira iteração, o caminho aumentante 
+$S \rightarrow A \rightarrow C \rightarrow F \rightarrow J \rightarrow L \rightarrow T$ apresentou capacidade mínima de 5, elevando o fluxo acumulado para 5 unidades. Após todas as iterações, o algoritmo atinge o fluxo máximo ótimo $∣f∣=45$, conforme previsto pelo Teorema do Fluxo Máximo/Corte Mínimo. A principal contribuição consiste em integrar teoria e prática de forma didática, fornecendo uma referência útil para o ensino e aplicação de técnicas de otimização de fluxo em ciência da computação, engenharia e pesquisa operacional.. \vskip0.3cm
  \textbf{Palavras-chave}: Algoritmo Ford–Fulkerson, fluxo máximo, otimização de redes, caminhos aumentantes, gargalo.
 \end{resumo}
 
@@ -111,9 +96,9 @@ A teoria dos grafos consolidou-se como um dos pilares matemáticos e computacion
 
 \noindent A partir dessa formulação original, surgiram variações que buscam maior eficiência computacional. O algoritmo de Edmonds–Karp (1972) \cite{edmonds1972} define o uso sistemático da busca em largura (BFS), garantindo complexidade polinomial. O algoritmo de Dinic (1970) \cite{dinic1970} introduziu o conceito de grafos de nível e fluxos bloqueadores, ampliando o desempenho em cenários específicos. Posteriormente, técnicas como \emph{push–relabel} (Goldberg–Tarjan, 1986) \cite{goldberg1988} exploraram estratégias locais de redistribuição de fluxo, permitindo lidar com redes de grande escala. Essas contribuições consolidaram o problema de fluxo máximo como uma das áreas mais férteis da otimização combinatória.
 
-\noindent No contexto contemporâneo, algoritmos de fluxo são aplicados não apenas em sistemas físicos e de transporte, mas também em domínios avançados como segmentação de imagens \cite{boykov2001}, análise de dados em grafos \cite{ahuja1993}, \emph{routing} em redes de computadores \cite{kleinberg2006} e planejamento de evacuação em situações de risco \cite{chen2010}. Essa versatilidade evidencia a relevância prática do problema e a necessidade de compreender suas bases teóricas e implementações.
+\noindent No contexto contemporâneo, algoritmos de fluxo são aplicados não apenas em sistemas físicos e de transporte, mas também em domínios avançados como segmentação de imagens \cite{boykov2001}, análise de dados em grafos \cite{ahuja1993}, \emph{routing} em redes de computadores \cite{kleinberg2006} e planejamento de evacuação em situações de risco \cite{chen2010}. Essa versatilidade aponta a relevância do problema e a necessidade de compreender suas bases teóricas e implementações.
 
-\noindent Este artigo tem como objetivo apresentar uma análise do problema de fluxo máximo e algoritmo de Ford–Fulkerson. Serão discutidos seus fundamentos conceituais, pseudocódigo e variações, limitações e um estudo de caso com implementação prática, a fim de evidenciar seu papel como ferramenta de modelagem e otimização.
+\noindent Este artigo tem como objetivo apresentar uma análise do problema de fluxo máximo e algoritmo de Ford–Fulkerson. Serão discutidos seus fundamentos conceituais, pseudocódigo e variações, limitações e um estudo de caso com implementação prática, a fim de apresentar seu papel como ferramenta de modelagem e otimização.
 
 
 \section{Trabalhos Correlatos} \label{sec:firstpage}
@@ -128,9 +113,9 @@ Na década de 1970, \textbf{Yefim Dinic} desenvolveu o conceito de grafo de nív
 
 Em 1986, \textbf{Goldberg e Tarjan} propuseram o método \textit{Push-Relabel} \cite{goldberg1988}, baseado em pré-fluxos, que violam temporariamente a conservação do fluxo e são ajustados localmente por operações de \textit{push} e \textit{relabel}. Essa abordagem permite redistribuir fluxo sem depender de caminhos aumentantes globais, alcançando complexidade $O(V^3)$ no caso geral, com refinamentos que reduzem para $O(V^2 \sqrt{E})$.
 
-\textbf{Ahuja e Orlin} (1992) propuseram o \textit{Capacity Scaling} \cite{ahuja1993}, otimizando Ford-Fulkerson ao considerar apenas caminhos com capacidade acima de um limite, reduzindo buscas inúteis. Paralelamente, surgiram algoritmos distribuídos e paralelos, voltados a redes de computadores e processamento de grafos massivos, consolidando a aplicabilidade prática da teoria de fluxo em larga escala.
+Ahuja e Orlin (1992) propuseram o \textit{Capacity Scaling} \cite{ahuja1993}, otimizando Ford-Fulkerson ao considerar apenas caminhos com capacidade acima de um limite, reduzindo buscas inúteis. Paralelamente, surgiram algoritmos distribuídos e paralelos, voltados a redes de computadores e processamento de grafos massivos, consolidando a aplicabilidade prática da teoria de fluxo em larga escala.
 
-\textbf{James Orlin} (2013) anunciou o algoritmo de fluxo máximo mais rápido conhecido até então \cite{orlin2013}, com complexidade $O(VE)$. \textbf{Goldberg e Rao} desenvolveram o algoritmo assintoticamente mais rápido para fluxo máximo, baseado em fluxos de bloqueio \cite{goldberg1998}, com tempo de execução $O\big(\min(V^{2/3}, E^{1/2}) \cdot E \cdot \log(V^2/E + 2) \cdot \log C \big)$, sem utilizar push-relabel.
+James Orlin (2013) anunciou o algoritmo de fluxo máximo mais rápido conhecido até então \cite{orlin2013}, com complexidade $O(VE)$. \textbf{Goldberg e Rao} desenvolveram o algoritmo assintoticamente mais rápido para fluxo máximo, baseado em fluxos de bloqueio \cite{goldberg1998}, com tempo de execução $O\big(\min(V^{2/3}, E^{1/2}) \cdot E \cdot \log(V^2/E + 2) \cdot \log C \big)$, sem utilizar push-relabel.
 
 \newpage
 \section{Redes de Fluxo  (ou Rede Capacitada)} 
@@ -786,6 +771,14 @@ Iteração & Caminho Aumentante & $\Delta$ & $|f|$ acumulado \\
 \end{table}
 
 
+A aplicação do algoritmo de Edmonds--Karp à rede definida na Fig.~\ref{fig:grafo}
+resultou na identificação de diversos caminhos aumentantes, com seus respectivos
+gargalos (fluxos possíveis em cada iteração) e atualização do fluxo acumulado
+$\lvert f \rvert$. A cada iteração, o algoritmo utilizou uma busca em largura
+(BFS) para encontrar o caminho mais curto em número de arestas entre a fonte $S$
+e o sorvedouro $T$. Em seguida, o gargalo $\Delta$ foi calculado como a menor
+capacidade residual ao longo do caminho. Por fim, as capacidades residuais foram
+atualizadas e o valor de $\lvert f \rvert$ ajustado.
 
 
 
